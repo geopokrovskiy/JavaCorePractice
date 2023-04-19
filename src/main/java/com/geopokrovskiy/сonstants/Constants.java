@@ -1,4 +1,4 @@
-package com.geopokrovskiy.Constants;
+package com.geopokrovskiy.сonstants;
 
 public class Constants {
     public static final String filenameDevs = "developers.json";

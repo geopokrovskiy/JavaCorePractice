@@ -1,6 +1,6 @@
 package com.geopokrovskiy.view;
 
-import com.geopokrovskiy.Constants.Constants;
+import com.geopokrovskiy.сonstants.Constants;
 import com.geopokrovskiy.controller.SkillController;
 import com.geopokrovskiy.model.Skill;
 import com.geopokrovskiy.model.Status;

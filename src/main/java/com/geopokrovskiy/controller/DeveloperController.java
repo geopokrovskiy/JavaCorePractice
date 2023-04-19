@@ -1,6 +1,6 @@
 package com.geopokrovskiy.controller;
 
-import com.geopokrovskiy.Constants.Constants;
+import com.geopokrovskiy.сonstants.Constants;
 import com.geopokrovskiy.model.Developer;
 import com.geopokrovskiy.model.Skill;
 import com.geopokrovskiy.model.Speciality;

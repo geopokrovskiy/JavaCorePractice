@@ -1,8 +1,7 @@
 package com.geopokrovskiy.view;
 
-import com.geopokrovskiy.Constants.Constants;
+import com.geopokrovskiy.сonstants.Constants;
 import com.geopokrovskiy.controller.DeveloperController;
-import com.geopokrovskiy.controller.SkillController;
 import com.geopokrovskiy.model.Developer;
 import com.geopokrovskiy.model.Skill;
 import com.geopokrovskiy.model.Speciality;
@@ -12,7 +11,6 @@ import com.geopokrovskiy.repository.SkillRepository;
 import com.geopokrovskiy.repository.SpecialityRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class DeveloperView {
 
