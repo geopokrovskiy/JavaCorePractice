@@ -6,9 +6,9 @@ import com.geopokrovskiy.model.Developer;
 import com.geopokrovskiy.model.Skill;
 import com.geopokrovskiy.model.Speciality;
 import com.geopokrovskiy.model.Status;
-import com.geopokrovskiy.repository.DeveloperRepository;
-import com.geopokrovskiy.repository.SkillRepository;
-import com.geopokrovskiy.repository.SpecialityRepository;
+import com.geopokrovskiy.repository.gson.GsonDeveloperRepositoryImpl;
+import com.geopokrovskiy.repository.gson.GsonSkillRepositoryImpl;
+import com.geopokrovskiy.repository.gson.GsonSpecialityRepositoryImpl;
 
 import java.util.*;
 
@@ -16,7 +16,7 @@ public class DeveloperView {
 
     public static void start() {
         Scanner scanner = new Scanner(System.in);
-        List<Developer> developerList = new DeveloperRepository(Constants.filenameDevs).getAll().stream().
+        List<Developer> developerList = new GsonDeveloperRepositoryImpl(Constants.filenameDevs).getAll().stream().
                 filter(developer -> developer.getStatus() != Status.DELETED).toList();
         System.out.println("List of developers: " + developerList);
 
@@ -38,7 +38,7 @@ public class DeveloperView {
                     System.out.println("Enter the last name of the developer: ");
                     lastName = scanner.nextLine();
                 }
-                List<Speciality> specList = new SpecialityRepository(Constants.filenameSpecs).getAll().
+                List<Speciality> specList = new GsonSpecialityRepositoryImpl(Constants.filenameSpecs).getAll().
                         stream().filter(spec -> spec.getStatus() != Status.DELETED).toList();
                 Speciality devSpeciality = null;
                 if (!specList.isEmpty()) {
@@ -56,7 +56,7 @@ public class DeveloperView {
                         }
                     }
                 }
-                List<Skill> skillList = new SkillRepository(Constants.filenameSkills).getAll().
+                List<Skill> skillList = new GsonSkillRepositoryImpl(Constants.filenameSkills).getAll().
                         stream().filter(skill -> skill.getStatus() != Status.DELETED).toList();
                 Set<Skill> chosenSkills = new TreeSet<>(Comparator.comparingLong(Skill::getId));
                 if (!skillList.isEmpty()) {
@@ -127,7 +127,7 @@ public class DeveloperView {
                             DeveloperController.updateLastNameDeveloper(oldDev, newLastName);
                             break;
                         } else if (updateOption == 3) {
-                            List<Skill> skillList = new SkillRepository(Constants.filenameSkills).getAll().
+                            List<Skill> skillList = new GsonSkillRepositoryImpl(Constants.filenameSkills).getAll().
                                     stream().filter(skill -> skill.getStatus() != Status.DELETED).toList();
                             if(skillList.isEmpty()){
                                 break;
@@ -160,7 +160,7 @@ public class DeveloperView {
                             DeveloperController.updateListSkills(oldDev, chosenSkills.stream().toList());
                             break;
                         } else if (updateOption == 4) {
-                            List<Speciality> specList = new SpecialityRepository(Constants.filenameSpecs).getAll().
+                            List<Speciality> specList = new GsonSpecialityRepositoryImpl(Constants.filenameSpecs).getAll().
                                     stream().filter(spec -> spec.getStatus() != Status.DELETED).toList();
                             Speciality newSpeciality = null;
                             if (!specList.isEmpty()) {

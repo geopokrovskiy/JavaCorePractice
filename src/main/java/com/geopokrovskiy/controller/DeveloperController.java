@@ -4,7 +4,7 @@ import com.geopokrovskiy.сonstants.Constants;
 import com.geopokrovskiy.model.Developer;
 import com.geopokrovskiy.model.Skill;
 import com.geopokrovskiy.model.Speciality;
-import com.geopokrovskiy.repository.DeveloperRepository;
+import com.geopokrovskiy.repository.gson.GsonDeveloperRepositoryImpl;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ public class DeveloperController {
 
     public static void addDeveloper(String firstName, String lastName, Speciality speciality, List<Skill> skillList) {
         Developer developer = new Developer(firstName, lastName, skillList, speciality);
-        if (!new DeveloperRepository(Constants.filenameDevs).addNew(developer)) {
+        if (!new GsonDeveloperRepositoryImpl(Constants.filenameDevs).addNew(developer)) {
             System.out.println("Impossible to add the developer");
         } else {
             System.out.println("The developer has been successfully added!");
@@ -26,7 +26,7 @@ public class DeveloperController {
         List<Skill> skillList = oldDev.getSkills();
         Developer newDevObj = new Developer(newFirstName, lastName, skillList, speciality);
         newDevObj.setId(id);
-        if (!new DeveloperRepository(Constants.filenameDevs).update(id, newDevObj)) {
+        if (!new GsonDeveloperRepositoryImpl(Constants.filenameDevs).update(id, newDevObj)) {
             System.out.println("The developer has been deleted or does not exist");
         } else {
             System.out.println("The developer has been successfully updated!");
@@ -40,7 +40,7 @@ public class DeveloperController {
         List<Skill> skillList = oldDev.getSkills();
         Developer newDevObj = new Developer(firstName, newLastName, skillList, speciality);
         newDevObj.setId(id);
-        if (!new DeveloperRepository(Constants.filenameDevs).update(id, newDevObj)) {
+        if (!new GsonDeveloperRepositoryImpl(Constants.filenameDevs).update(id, newDevObj)) {
             System.out.println("The developer has been deleted or does not exist");
         } else {
             System.out.println("The developer has been successfully updated!");
@@ -54,7 +54,7 @@ public class DeveloperController {
         Speciality speciality = oldDev.getSpeciality();
         Developer newDevObj = new Developer(firstName, lastName, newSkills, speciality);
         newDevObj.setId(id);
-        if (!new DeveloperRepository(Constants.filenameDevs).update(id, newDevObj)) {
+        if (!new GsonDeveloperRepositoryImpl(Constants.filenameDevs).update(id, newDevObj)) {
             System.out.println("The developer has been deleted or does not exist");
         } else {
             System.out.println("The developer has been successfully updated!");
@@ -68,7 +68,7 @@ public class DeveloperController {
         List<Skill> skillList = oldDev.getSkills();
         Developer newDevObj = new Developer(firstName, lastName, skillList, newSpeciality);
         newDevObj.setId(id);
-        if (!new DeveloperRepository(Constants.filenameDevs).update(id, newDevObj)) {
+        if (!new GsonDeveloperRepositoryImpl(Constants.filenameDevs).update(id, newDevObj)) {
             System.out.println("The developer has been deleted or does not exist");
         } else {
             System.out.println("The developer has been successfully updated!");
@@ -77,7 +77,7 @@ public class DeveloperController {
 
     public static void deleteDeveloper(Developer toDelete) {
         long id = toDelete.getId();
-        if (!new DeveloperRepository(Constants.filenameDevs).delete(id)) {
+        if (!new GsonDeveloperRepositoryImpl(Constants.filenameDevs).delete(id)) {
             System.out.println("The developer has been already deleted or does not exist.");
         } else {
             System.out.println("The developer has been successfully deleted!");

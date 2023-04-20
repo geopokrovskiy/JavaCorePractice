@@ -4,7 +4,7 @@ import com.geopokrovskiy.сonstants.Constants;
 import com.geopokrovskiy.controller.SpecialityController;
 import com.geopokrovskiy.model.Speciality;
 import com.geopokrovskiy.model.Status;
-import com.geopokrovskiy.repository.SpecialityRepository;
+import com.geopokrovskiy.repository.gson.GsonSpecialityRepositoryImpl;
 
 import java.util.InputMismatchException;
 import java.util.List;
@@ -20,7 +20,7 @@ public class SpecialityView {
         System.out.println("2) Update data of a speciality");
         System.out.println("3) Delete a speciality");
         System.out.println("4) To Main Menu");
-        List<Speciality> specList = new SpecialityRepository(Constants.filenameSpecs).getAll().
+        List<Speciality> specList = new GsonSpecialityRepositoryImpl(Constants.filenameSpecs).getAll().
                 stream().filter(speciality -> speciality.getStatus() != Status.DELETED).toList();
         System.out.println("List of specialities: " + specList);
         while (true) {

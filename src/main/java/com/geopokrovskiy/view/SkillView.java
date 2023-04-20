@@ -4,7 +4,7 @@ import com.geopokrovskiy.сonstants.Constants;
 import com.geopokrovskiy.controller.SkillController;
 import com.geopokrovskiy.model.Skill;
 import com.geopokrovskiy.model.Status;
-import com.geopokrovskiy.repository.SkillRepository;
+import com.geopokrovskiy.repository.gson.GsonSkillRepositoryImpl;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -17,7 +17,7 @@ public class SkillView {
         System.out.println("2) Update data of a skill");
         System.out.println("3) Delete a skill");
         System.out.println("4) To Main Menu");
-        List<Skill> skillList = new SkillRepository(Constants.filenameSkills).getAll().
+        List<Skill> skillList = new GsonSkillRepositoryImpl(Constants.filenameSkills).getAll().
                 stream().filter(skill -> skill.getStatus() != Status.DELETED).toList();
         System.out.println("List of skills: " + skillList);
         while (true) {
