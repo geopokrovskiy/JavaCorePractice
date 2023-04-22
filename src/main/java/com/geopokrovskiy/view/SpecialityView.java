@@ -1,27 +1,24 @@
 package com.geopokrovskiy.view;
 
-import com.geopokrovskiy.сonstants.Constants;
+
 import com.geopokrovskiy.controller.SpecialityController;
 import com.geopokrovskiy.model.Speciality;
-import com.geopokrovskiy.model.Status;
-import com.geopokrovskiy.repository.gson.GsonSpecialityRepositoryImpl;
-
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
 public class SpecialityView {
 
+    private final SpecialityController specialityController = new SpecialityController();
 
-    public static void start() {
+    public void start() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("You are in specialities menu. What would you like to do?");
         System.out.println("1) Add new speciality");
         System.out.println("2) Update data of a speciality");
         System.out.println("3) Delete a speciality");
         System.out.println("4) To Main Menu");
-        List<Speciality> specList = new GsonSpecialityRepositoryImpl(Constants.filenameSpecs).getAll().
-                stream().filter(speciality -> speciality.getStatus() != Status.DELETED).toList();
+        List<Speciality> specList = specialityController.getAllSpecs();
         System.out.println("List of specialities: " + specList);
         while (true) {
             int specOption = 4;
@@ -36,7 +33,7 @@ public class SpecialityView {
                     System.out.println("Enter the name of the speciality: ");
                     specName = scanner.nextLine();
                 }
-                SpecialityController.addNewSpec(specName);
+                specialityController.addNewSpec(specName);
                 break;
             } else if (specOption == 2) {
                 Speciality oldSpec = null;
@@ -58,7 +55,7 @@ public class SpecialityView {
                     System.out.println("Enter the new name of the speciality.");
                     newSpec = scanner.nextLine();
                 }
-                SpecialityController.updateSpec(oldSpec, newSpec);
+                specialityController.updateSpec(oldSpec, newSpec);
                 break;
             } else if (specOption == 3) {
                 Speciality toDelete = null;
@@ -75,7 +72,9 @@ public class SpecialityView {
                         System.out.println("Incorrect input!");
                     }
                 }
-                SpecialityController.deleteSpec(toDelete);
+                if(!specialityController.deleteSpec(toDelete)){
+                    System.out.println("The speciality has already been deleted!");
+                };
                 break;
             } else if (specOption == 4) {
                 break;

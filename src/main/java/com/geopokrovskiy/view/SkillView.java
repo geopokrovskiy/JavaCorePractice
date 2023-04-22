@@ -10,15 +10,16 @@ import java.util.List;
 import java.util.Scanner;
 
 public class SkillView {
-    public static void start() {
+
+    private final SkillController skillController = new SkillController();
+    public void start() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("You are in skills menu. What would you like to do?");
         System.out.println("1) Add new skill");
         System.out.println("2) Update data of a skill");
         System.out.println("3) Delete a skill");
         System.out.println("4) To Main Menu");
-        List<Skill> skillList = new GsonSkillRepositoryImpl(Constants.filenameSkills).getAll().
-                stream().filter(skill -> skill.getStatus() != Status.DELETED).toList();
+        List<Skill> skillList = skillController.getAllSkills();
         System.out.println("List of skills: " + skillList);
         while (true) {
             int skillOption = 4;
@@ -33,7 +34,7 @@ public class SkillView {
                     System.out.println("Enter the name of the skill: ");
                     skillName = scanner.nextLine();
                 }
-                SkillController.addNewSkill(skillName);
+                skillController.addNewSkill(skillName);
                 break;
             } else if (skillOption == 2) {
                 Skill oldSkill = null;
@@ -55,7 +56,7 @@ public class SkillView {
                     System.out.println("Enter the new name of the skill.");
                     newSkill = scanner.nextLine();
                 }
-                SkillController.updateSkill(oldSkill, newSkill);
+                skillController.updateSkill(oldSkill, newSkill);
                 break;
             } else if (skillOption == 3) {
                 Skill toDelete = null;
@@ -72,7 +73,9 @@ public class SkillView {
                         System.out.println("Incorrect input!");
                     }
                 }
-                SkillController.deleteSkill(toDelete);
+                if(!skillController.deleteSkill(toDelete)){
+                    System.out.println("The skill has already been deleted!");
+                }
                 break;
             } else if (skillOption == 4) {
                 break;

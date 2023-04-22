@@ -3,7 +3,7 @@ package com.geopokrovskiy.model;
 import java.util.Objects;
 
 public class Skill {
-    private long id;
+    private Long id;
     private String name;
     private Status status;
 
@@ -20,11 +20,11 @@ public class Skill {
         this.status = Status.ACTIVE;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

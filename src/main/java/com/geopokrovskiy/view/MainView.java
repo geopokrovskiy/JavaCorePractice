@@ -1,12 +1,19 @@
 package com.geopokrovskiy.view;
 
+import com.geopokrovskiy.controller.DeveloperController;
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class MainView {
-    public static void start(){
+
+    private final DeveloperView developerView = new DeveloperView();
+    private final SkillView skillView = new SkillView();
+    private final SpecialityView specialityView = new SpecialityView();
+
+    public void start() {
         Scanner scanner = new Scanner(System.in);
-        while(true){
+        while (true) {
             System.out.println("Hello! What would you like to do? Press the button: ");
             System.out.println("1) Work with Developers");
             System.out.println("2) Work with Skills");
@@ -15,16 +22,16 @@ public class MainView {
             int option = 4;
             try {
                 option = scanner.nextInt();
-            } catch (InputMismatchException e){
+            } catch (InputMismatchException e) {
                 System.out.println("Incorrect input!");
             }
-            if(option == 1){
-                DeveloperView.start();
-            } else if(option == 2){
-                SkillView.start();
-            } else if(option == 3){
-                SpecialityView.start();
-            } else if(option == 4){
+            if (option == 1) {
+                developerView.start();
+            } else if (option == 2) {
+                skillView.start();
+            } else if (option == 3) {
+                specialityView.start();
+            } else if (option == 4) {
                 System.out.println("See you soon!");
                 break;
             }

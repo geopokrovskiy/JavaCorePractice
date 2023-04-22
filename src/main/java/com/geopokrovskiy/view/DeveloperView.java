@@ -1,5 +1,7 @@
 package com.geopokrovskiy.view;
 
+import com.geopokrovskiy.controller.SkillController;
+import com.geopokrovskiy.controller.SpecialityController;
 import com.geopokrovskiy.сonstants.Constants;
 import com.geopokrovskiy.controller.DeveloperController;
 import com.geopokrovskiy.model.Developer;
@@ -14,10 +16,14 @@ import java.util.*;
 
 public class DeveloperView {
 
-    public static void start() {
+    private final DeveloperController developerController = new DeveloperController();
+    private final SpecialityController specialityController = new SpecialityController();
+    private final SkillController skillController = new SkillController();
+
+
+    public void start() {
         Scanner scanner = new Scanner(System.in);
-        List<Developer> developerList = new GsonDeveloperRepositoryImpl(Constants.filenameDevs).getAll().stream().
-                filter(developer -> developer.getStatus() != Status.DELETED).toList();
+        List<Developer> developerList = developerController.getAllDevs();
         System.out.println("List of developers: " + developerList);
 
         while (true) {
@@ -38,8 +44,7 @@ public class DeveloperView {
                     System.out.println("Enter the last name of the developer: ");
                     lastName = scanner.nextLine();
                 }
-                List<Speciality> specList = new GsonSpecialityRepositoryImpl(Constants.filenameSpecs).getAll().
-                        stream().filter(spec -> spec.getStatus() != Status.DELETED).toList();
+                List<Speciality> specList = specialityController.getAllSpecs();
                 Speciality devSpeciality = null;
                 if (!specList.isEmpty()) {
                     while (devSpeciality == null) {
@@ -56,8 +61,7 @@ public class DeveloperView {
                         }
                     }
                 }
-                List<Skill> skillList = new GsonSkillRepositoryImpl(Constants.filenameSkills).getAll().
-                        stream().filter(skill -> skill.getStatus() != Status.DELETED).toList();
+                List<Skill> skillList = skillController.getAllSkills();
                 Set<Skill> chosenSkills = new TreeSet<>(Comparator.comparingLong(Skill::getId));
                 if (!skillList.isEmpty()) {
                     while (true) {
@@ -84,7 +88,7 @@ public class DeveloperView {
                         }
                     }
                 }
-                DeveloperController.addDeveloper(firstName, lastName, devSpeciality, chosenSkills.stream().toList());
+                developerController.addDeveloper(firstName, lastName, devSpeciality, chosenSkills.stream().toList());
                 break;
             } else if (devOption == 2) {
                 Developer oldDev = null;
@@ -116,7 +120,7 @@ public class DeveloperView {
                                 System.out.println("Enter the new first name");
                                 newFirstName = scanner.nextLine();
                             }
-                            DeveloperController.updateFirstNameDeveloper(oldDev, newFirstName);
+                            developerController.updateFirstNameDeveloper(oldDev, newFirstName);
                             break;
                         } else if (updateOption == 2) {
                             String newLastName = "";
@@ -124,11 +128,10 @@ public class DeveloperView {
                                 System.out.println("Enter the new last name");
                                 newLastName = scanner.nextLine();
                             }
-                            DeveloperController.updateLastNameDeveloper(oldDev, newLastName);
+                            developerController.updateLastNameDeveloper(oldDev, newLastName);
                             break;
                         } else if (updateOption == 3) {
-                            List<Skill> skillList = new GsonSkillRepositoryImpl(Constants.filenameSkills).getAll().
-                                    stream().filter(skill -> skill.getStatus() != Status.DELETED).toList();
+                            List<Skill> skillList = skillController.getAllSkills();
                             if(skillList.isEmpty()){
                                 break;
                             }
@@ -157,11 +160,10 @@ public class DeveloperView {
                                     System.out.println("Incorrect input!");
                                 }
                             }
-                            DeveloperController.updateListSkills(oldDev, chosenSkills.stream().toList());
+                            developerController.updateListSkills(oldDev, chosenSkills.stream().toList());
                             break;
                         } else if (updateOption == 4) {
-                            List<Speciality> specList = new GsonSpecialityRepositoryImpl(Constants.filenameSpecs).getAll().
-                                    stream().filter(spec -> spec.getStatus() != Status.DELETED).toList();
+                            List<Speciality> specList = specialityController.getAllSpecs();
                             Speciality newSpeciality = null;
                             if (!specList.isEmpty()) {
                                 while (newSpeciality == null) {
@@ -178,7 +180,7 @@ public class DeveloperView {
                                     }
                                 }
                             }
-                            DeveloperController.updateSpecialityDeveloper(oldDev, newSpeciality);
+                            developerController.updateSpecialityDeveloper(oldDev, newSpeciality);
                             break;
                         }
                     } catch (InputMismatchException e){
@@ -201,7 +203,9 @@ public class DeveloperView {
                         System.out.println("Incorrect input!");
                     }
                 }
-                DeveloperController.deleteDeveloper(toDelete);
+                 if(!developerController.deleteDeveloper(toDelete)){
+                     System.out.println("The developer has already been deleted!");
+                 }
                 break;
             } else if (devOption == 4) {
                 break;

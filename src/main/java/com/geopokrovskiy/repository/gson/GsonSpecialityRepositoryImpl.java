@@ -1,104 +1,91 @@
 package com.geopokrovskiy.repository.gson;
 
+
 import com.geopokrovskiy.model.Speciality;
 import com.geopokrovskiy.model.Status;
-import com.geopokrovskiy.repository.GenericRepository;
 import com.geopokrovskiy.repository.SpecialityRepository;
+import com.geopokrovskiy.сonstants.Constants;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import java.io.*;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GsonSpecialityRepositoryImpl implements SpecialityRepository {
+    private final String filename = Constants.filenameSpecs;
 
-    private List<Speciality> specs;
-    private String filename;
-
-    public GsonSpecialityRepositoryImpl(String filename) {
-        this.filename = filename;
-        try {
-            List<Speciality> specs = this.fromJson(filename);
-            if(specs == null){
-                this.specs = new ArrayList<>();
-            }
-            else{
-                this.specs = specs;
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+    private Long generateId(List<Speciality> specialities){
+        Speciality maxIdSpeciality = specialities.stream().max(Comparator.comparingLong(Speciality::getId)).orElse(null);
+        return Objects.nonNull(maxIdSpeciality) ? maxIdSpeciality.getId() + 1  :  1L;
     }
+
     @Override
-    public boolean addNew(Speciality value) {
-        Speciality maxIdSpec = this.specs.stream().max(Comparator.comparingLong(Speciality::getId)).orElse(null);
-        if(maxIdSpec == null){
-            value.setId(1);
-        } else {
-            value.setId(maxIdSpec.getId() + 1);
-        }
-        this.specs.add(value);
-        try {
-            this.toJson(this.filename);
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
+    public Speciality addNew(Speciality value) {
+        List<Speciality> specialities = getSpecsFromJson();
+        Long maxId = generateId(specialities);
+        value.setId(maxId);
+        specialities.add(value);
+        writeSpecsToJson(specialities);
+        return value;
     }
 
     @Override
     public Speciality getById(Long aLong) {
-        return this.specs.stream().filter(o -> o.getId() == aLong).findFirst().orElse(null);
+        return getSpecsFromJson().stream().filter(o -> o.getId().equals(aLong) && o.getStatus() != Status.DELETED).findFirst().orElse(null);
     }
 
     @Override
     public List<Speciality> getAll() {
-        return this.specs;
+        return getSpecsFromJson();
     }
 
     @Override
-    public boolean update(Long aLong, Speciality value) {
-        Speciality oldSpec = this.getById(aLong);
-        if(oldSpec == null || oldSpec.getStatus() == Status.DELETED){
-            return false;
-        }
-        int idx = this.specs.indexOf(oldSpec);
-        this.specs.set(idx, value);
-        try {
-            this.toJson(this.filename);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        return true;
+    public Speciality update(Speciality value) {
+        List<Speciality> specialities = getSpecsFromJson();
+        List<Speciality> updatedSpecialities = specialities.stream().map(speciality -> {
+            if(speciality.getId().equals(value.getId())){
+                return value;
+            }
+            return speciality;
+        }).toList();
+        writeSpecsToJson(updatedSpecialities);
+        return value;
     }
 
     @Override
     public boolean delete(Long aLong) {
-        Speciality speciality = this.getById(aLong);
-        if(speciality == null || speciality.getStatus() == Status.DELETED) return false;
-        speciality.setStatus(Status.DELETED);
-        try {
-            this.toJson(this.filename);
-        } catch (IOException e) {
+        AtomicBoolean isDeleted = new AtomicBoolean(false);
+        List<Speciality> specialities = getSpecsFromJson();
+        List<Speciality> specialitiesAfterDelete = specialities.stream().peek(speciality -> {
+            if(speciality.getId().equals(aLong)){
+                speciality.setStatus(Status.DELETED);
+                isDeleted.set(true);
+            }
+        }).toList();
+        writeSpecsToJson(specialitiesAfterDelete);
+        return isDeleted.get();
+    }
+
+    private void writeSpecsToJson(List<Speciality> specs) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.filename))) {
+            String json = new Gson().toJson(specs);
+            writer.write(json);
+        } catch (IOException e){
             System.out.println(e.getMessage());
         }
-        return true;
     }
 
-    private void toJson(String filename) throws IOException {
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(filename))){
-            String json = new Gson().toJson(this.specs);
-            writer.write(json);
-        }
-    }
-
-    private List<Speciality> fromJson(String filename) throws IOException {
-        try(BufferedReader reader = new BufferedReader(new FileReader(filename))){
-            Type typeToken = new TypeToken<List<Speciality>>() {}.getType();
+    private List<Speciality> getSpecsFromJson() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(this.filename))) {
+            Type typeToken = new TypeToken<List<Speciality>>() {
+            }.getType();
             return new Gson().fromJson(reader, typeToken);
+        } catch (IOException e) {
+            return Collections.emptyList();
         }
     }
 }

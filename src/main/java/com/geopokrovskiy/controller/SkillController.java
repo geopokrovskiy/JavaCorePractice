@@ -1,37 +1,33 @@
 package com.geopokrovskiy.controller;
 
-import com.geopokrovskiy.сonstants.Constants;
+import com.geopokrovskiy.model.Status;
+import com.geopokrovskiy.repository.SkillRepository;
 import com.geopokrovskiy.model.Skill;
 import com.geopokrovskiy.repository.gson.GsonSkillRepositoryImpl;
 
+import java.util.List;
+
 public class SkillController {
+    private final SkillRepository skillRepository = new GsonSkillRepositoryImpl();
 
-    public static void addNewSkill(String name) {
+    public Skill addNewSkill(String name) {
         Skill skill = new Skill(name);
-        if (!new GsonSkillRepositoryImpl(Constants.filenameSkills).addNew(skill)) {
-            System.out.println("Impossible to add the skill");
-        } else {
-            System.out.println("The skill has been successfully added!");
-        }
+        skillRepository.addNew(skill);
+        return skill;
     }
 
-    public static void updateSkill(Skill oldSkill, String newSkill) {
-        long id = oldSkill.getId();
+    public List<Skill> getAllSkills(){
+        return skillRepository.getAll().stream().filter(skill -> skill.getStatus() != Status.DELETED).toList();
+    }
+
+    public Skill updateSkill(Skill oldSkill, String newSkill) {
         Skill newSkillObj = new Skill(newSkill);
-        newSkillObj.setId(id);
-        if (!new GsonSkillRepositoryImpl(Constants.filenameSkills).update(id, newSkillObj)) {
-            System.out.println("The skill has been deleted or does not exist");
-        } else {
-            System.out.println("The skill has been successfully updated!");
-        }
+        newSkillObj.setId(oldSkill.getId());
+        return skillRepository.update(newSkillObj);
     }
 
-    public static void deleteSkill(Skill toDelete) {
-        long id = toDelete.getId();
-        if (!new GsonSkillRepositoryImpl(Constants.filenameSkills).delete(id)) {
-            System.out.println("The skill has been already deleted or does not exist.");
-        } else {
-            System.out.println("The skill has been successfully deleted!");
-        }
+    public boolean deleteSkill(Skill toDelete) {
+        Long id = toDelete.getId();
+        return skillRepository.delete(id);
     }
 }

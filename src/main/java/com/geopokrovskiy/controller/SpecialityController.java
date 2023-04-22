@@ -1,38 +1,35 @@
 package com.geopokrovskiy.controller;
 
-import com.geopokrovskiy.сonstants.Constants;
+import com.geopokrovskiy.model.Status;
+import com.geopokrovskiy.repository.SpecialityRepository;
 import com.geopokrovskiy.model.Speciality;
 import com.geopokrovskiy.repository.gson.GsonSpecialityRepositoryImpl;
 
+import java.util.List;
+
 public class SpecialityController {
 
-    public static void addNewSpec(String name) {
-        Speciality spec = new Speciality(name);
-        if (!new GsonSpecialityRepositoryImpl(Constants.filenameSpecs).addNew(spec)) {
-            System.out.println("Impossible to add the speciality");
-        } else {
-            System.out.println("The speciality has been successfully added!");
-        }
+    private final SpecialityRepository specialityRepository = new GsonSpecialityRepositoryImpl();
+
+    public Speciality addNewSpec(String name) {
+        Speciality speciality = new Speciality(name);
+        specialityRepository.addNew(speciality);
+        return speciality;
     }
 
-    public static void updateSpec(Speciality oldSpec, String newSpec) {
-        long id = oldSpec.getId();
+    public List<Speciality> getAllSpecs(){
+        return specialityRepository.getAll().stream().filter(spec -> spec.getStatus() != Status.DELETED).toList();
+    }
+
+    public Speciality updateSpec(Speciality oldSpec, String newSpec) {
         Speciality newSpecObj = new Speciality(newSpec);
-        newSpecObj.setId(id);
-        if (!new GsonSpecialityRepositoryImpl(Constants.filenameSpecs).update(id, newSpecObj)) {
-            System.out.println("The speciality has been deleted or does not exist");
-        } else {
-            System.out.println("The speciality has been successfully updated!");
-        }
+        newSpecObj.setId(oldSpec.getId());
+        return specialityRepository.update(newSpecObj);
     }
 
-    public static void deleteSpec(Speciality toDelete) {
-        long id = toDelete.getId();
-        if (!new GsonSpecialityRepositoryImpl(Constants.filenameSpecs).delete(id)) {
-            System.out.println("The speciality has been already deleted or does not exist.");
-        } else {
-            System.out.println("The speciality has been successfully deleted!");
-        }
+    public boolean deleteSpec(Speciality toDelete) {
+        Long id = toDelete.getId();
+        return specialityRepository.delete(id);
     }
 }
 

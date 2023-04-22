@@ -3,105 +3,90 @@ package com.geopokrovskiy.repository.gson;
 import com.geopokrovskiy.model.Developer;
 import com.geopokrovskiy.model.Status;
 import com.geopokrovskiy.repository.DeveloperRepository;
-import com.geopokrovskiy.repository.GenericRepository;
+import com.geopokrovskiy.сonstants.Constants;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GsonDeveloperRepositoryImpl implements DeveloperRepository {
+    private final String filename = Constants.filenameDevs;
 
-    private List<Developer> developers;
-    private String filename;
 
-    public GsonDeveloperRepositoryImpl(String filename) {
-        this.filename = filename;
-        try {
-            List<Developer> developers = this.fromJson(filename);
-            if(developers == null){
-                this.developers = new ArrayList<>();
-            }
-            else{
-                this.developers = developers;
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+    private Long generateId(List<Developer> developers){
+        Developer maxIdDeveloper = developers.stream().max(Comparator.comparingLong(Developer::getId)).orElse(null);
+        return Objects.nonNull(maxIdDeveloper) ? maxIdDeveloper.getId() + 1  :  1L;
     }
-
     @Override
-    public boolean addNew(Developer value) {
-        Developer maxIdDev = this.developers.stream().max(Comparator.comparingLong(Developer::getId)).orElse(null);
-        if(maxIdDev == null){
-            value.setId(1);
-        } else {
-            value.setId(maxIdDev.getId() + 1);
-        }
-        this.developers.add(value);
-        try {
-            this.toJson(this.filename);
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
+    public Developer addNew(Developer value) {
+        List<Developer> developerList = getDevsFromJson();
+        Long maxId = generateId(developerList);
+        value.setId(maxId);
+        developerList.add(value);
+        writeDevsToJson(developerList);
+        return value;
     }
 
     @Override
     public Developer getById(Long aLong) {
-        return this.developers.stream().
-                filter(o -> (o.getId() == aLong)
-                && o.getStatus() == Status.ACTIVE).
-                findFirst().
-                orElse(null);
+        return getDevsFromJson().stream().filter(o -> (o.getId().equals(aLong))
+                && o.getStatus() != Status.DELETED).findFirst().orElse(null);
     }
 
     @Override
     public List<Developer> getAll() {
-        return this.developers;
+        return getDevsFromJson();
     }
 
     @Override
-    public boolean update(Long aLong, Developer value) {
-        Developer oldDev = this.getById(aLong);
-        if(oldDev == null || oldDev.getStatus() == Status.DELETED) return false;
-        int idx = this.developers.indexOf(oldDev);
-        this.developers.set(idx, value);
-        try {
-            this.toJson(this.filename);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        return true;
+    public Developer update(Developer value) {
+        List<Developer> developers = getDevsFromJson();
+        List<Developer> updatedDevelopers = developers.stream().map(developer -> {
+            if(developer.getId().equals(value.getId())){
+                return value;
+            }
+            return developer;
+        }).toList();
+        writeDevsToJson(updatedDevelopers);
+        return value;
     }
 
     @Override
     public boolean delete(Long aLong) {
-        Developer developer = this.getById(aLong);
-        if(developer == null || developer.getStatus() == Status.DELETED) return false;
-        developer.setStatus(Status.DELETED);
-        try {
-            this.toJson(this.filename);
+        AtomicBoolean isDeleted = new AtomicBoolean(false);
+        List<Developer> developers = getDevsFromJson();
+        List<Developer> developersAfterDelete = developers.stream().peek( developer -> {
+            if(developer.getId().equals(aLong)){
+                developer.setStatus(Status.DELETED);
+                isDeleted.set(true);
+            }
+        }).toList();
+        writeDevsToJson(developersAfterDelete);
+        return isDeleted.get();
+    }
+
+    private void writeDevsToJson(List<Developer> developers) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.filename))) {
+            String json = new Gson().toJson(developers);
+            writer.write(json);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        return true;
     }
 
-    private void toJson(String filename) throws IOException {
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(filename))){
-            String json = new Gson().toJson(this.developers);
-            writer.write(json);
-        }
-    }
-
-    private List<Developer> fromJson(String filename) throws IOException {
-        try(BufferedReader reader = new BufferedReader(new FileReader(filename))){
-            Type typeToken = new TypeToken<List<Developer>>() {}.getType();
+    private List<Developer> getDevsFromJson() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(this.filename))) {
+            Type typeToken = new TypeToken<List<Developer>>() {
+            }.getType();
             return new Gson().fromJson(reader, typeToken);
+        } catch (IOException e) {
+            return Collections.emptyList();
         }
     }
 }
